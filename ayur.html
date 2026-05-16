@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AyurVeda — Your Plant Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green: #1a5c3a;
+  --green-mid: #2d8a5a;
+  --green-light: #e8f5ee;
+  --green-accent: #4caf7d;
+  --cream: #faf7f0;
+  --bark: #3d2b1f;
+  --muted: #7a6e65;
+  --sand: #e8ddd0;
+  --white: #ffffff;
+  --card-bg: #ffffff;
+  --body-bg: #faf7f0;
+  --border: #e8ddd0;
+  --input-bg: #faf7f0;
+  --shadow: rgba(26,92,58,0.04);
+}
+
+[data-theme="dark"] {
+  --cream: #111410;
+  --bark: #e8e0d5;
+  --muted: #8a9e8e;
+  --sand: #2a3028;
+  --white: #1a1e18;
+  --card-bg: #1a1e18;
+  --body-bg: #111410;
+  --border: #2a3028;
+  --input-bg: #111410;
+  --shadow: rgba(0,0,0,0.2);
+  --green-light: #0d2218;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--body-bg);
+  color: var(--bark);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(45,138,90,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(26,92,58,0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+
+.leaf-icon {
+  width: 44px; height: 44px;
+  background: var(--green);
+  border-radius: 50% 10px 50% 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  animation: breathe 4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.brand-name { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green); letter-spacing: -0.5px; }
+.brand-name em { font-style: italic; color: var(--green-accent); }
+
+.theme-toggle {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--bark);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+}
+.theme-toggle:hover { border-color: var(--green-accent); }
+
+.tagline { font-size: 14px; color: var(--muted); margin-bottom: 1.25rem; font-weight: 300; letter-spacing: 0.3px; }
+.divider { width: 40px; height: 2px; background: var(--green-accent); margin-bottom: 1.5rem; border-radius: 2px; }
+
+/* ── API Key ── */
+.key-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.key-card label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--muted); display: block; margin-bottom: 7px; font-weight: 500;
+}
+.key-row { display: flex; gap: 6px; }
+.key-row input {
+  flex: 1; border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--bark); background: var(--input-bg); outline: none;
+  transition: border-color 0.2s; min-width: 0;
+}
+.key-row input:focus { border-color: var(--green-accent); }
+.key-save {
+  padding: 8px 12px; background: var(--green); color: white; border: none;
+  border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px;
+  font-weight: 500; cursor: pointer; transition: background 0.2s; white-space: nowrap;
+}
+.key-save:hover { background: var(--green-mid); }
+.key-hint { font-size: 11px; margin-top: 5px; color: var(--green-mid); min-height: 14px; }
+.key-hint a { color: var(--green-mid); }
+
+/* ── Mode nav ── */
+.mode-nav {
+  display: flex; gap: 8px; margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0;
+}
+.mode-btn {
+  background: none; border: none; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer;
+  padding: 10px 18px 12px; border-bottom: 2px solid transparent;
+  margin-bottom: -2px; transition: color 0.2s, border-color 0.2s;
+  letter-spacing: 0.3px;
+}
+.mode-btn:hover { color: var(--green); }
+.mode-btn.active { color: var(--green); border-bottom-color: var(--green-accent); }
+.mode-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--muted); margin-bottom: 1.25rem; font-weight: 500;
+}
+.mode-label span { color: var(--green-accent); }
+
+/* ── Panels ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Form card ── */
+.form-card {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px;
+  padding: 1.75rem; margin-bottom: 1.5rem;
+  box-shadow: 0 2px 20px var(--shadow);
+}
+.form-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--green); margin-bottom: 1.25rem; }
+.fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { margin-bottom: 1rem; }
+.field label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--muted); display: block; margin-bottom: 7px; font-weight: 500;
+}
+.field select, .field input[type="text"], .field textarea {
+  width: 100%; border: 1px solid var(--border); border-radius: 12px;
+  padding: 11px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+  color: var(--bark); background: var(--input-bg); outline: none; transition: border-color 0.2s;
+}
+.field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6e65' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  background-color: var(--input-bg); padding-right: 36px; cursor: pointer;
+}
+.field select:focus, .field input[type="text"]:focus, .field textarea:focus { border-color: var(--green-accent); }
+
+/* ── Weather strip ── */
+.weather-strip {
+  display: none; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+  align-items: flex-start; gap: 12px;
+}
+.weather-strip.show { display: flex; }
+.weather-icon { font-size: 28px; flex-shrink: 0; }
+.weather-info { flex: 1; }
+.weather-city { font-size: 13px; font-weight: 500; color: var(--bark); }
+.weather-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.weather-temp { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--green); flex-shrink: 0; }
+.weather-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.weather-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: var(--green-light); color: var(--green); font-weight: 500; }
+
+/* ── Buttons ── */
+.fetch-weather-btn {
+  width: 100%; padding: 11px; background: transparent;
+  border: 1px solid var(--green-accent); color: var(--green);
+  border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+  cursor: pointer; transition: all 0.2s; margin-bottom: 1.25rem;
+}
+.fetch-weather-btn:hover { background: var(--green-light); }
+
+.find-btn {
+  width: 100%; padding: 15px; background: var(--green); color: white; border: none;
+  border-radius: 14px; font-family: 'Playfair Display', serif; font-size: 1.05rem;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px;
+}
+.find-btn:hover { background: var(--green-mid); transform: translateY(-1px); }
+.find-btn:active { transform: translateY(0); }
+.find-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── Loading ── */
+.loading { display: none; text-align: center; padding: 2.5rem; color: var(--muted); font-size: 14px; font-style: italic; }
+.loading.show { display: block; }
+.loading-dots::after { content: ''; animation: dots 1.4s infinite; }
+@keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } }
+
+/* ── Error ── */
+.error-msg { display: none; background: #fce8e8; color: #8b1a1a; border-radius: 12px; padding: 1rem 1.25rem; font-size: 14px; margin-top: 1rem; }
+.error-msg.show { display: block; }
+
+/* ── Results ── */
+.results { display: none; }
+.results.show { display: block; }
+.results-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--green); margin-bottom: 1rem; font-style: italic; }
+
+/* ── Plant card ── */
+.plant-card {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px;
+  padding: 1.5rem; margin-bottom: 14px; animation: slideUp 0.4s ease both;
+  transition: box-shadow 0.2s;
+}
+.plant-card:hover { box-shadow: 0 4px 20px var(--shadow); }
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.plant-card:nth-child(2) { animation-delay: 0.1s; }
+.plant-card:nth-child(3) { animation-delay: 0.2s; }
+
+.plant-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.plant-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--bark); }
+.plant-sci { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 2px; }
+
+.difficulty { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+.diff-easy { background: #e8f5ee; color: var(--green); }
+.diff-medium { background: #fff8e1; color: #7a5a00; }
+.diff-hard { background: #fce8e8; color: #8b1a1a; }
+
+.plant-sections { display: grid; gap: 7px; }
+.plant-row { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.6; padding: 9px 12px; border-radius: 10px; }
+.plant-row.benefit { background: var(--green-light); color: var(--green); }
+.plant-row.why { background: var(--green-light); color: var(--bark); opacity: 0.85; }
+.plant-row.care { background: var(--input-bg); color: var(--bark); border: 1px solid var(--border); }
+.plant-row.water { background: var(--input-bg); color: var(--bark); border: 1px solid var(--border); }
+.plant-row.plant-time { background: var(--input-bg); color: var(--bark); border: 1px solid var(--border); }
+.plant-row.warning { background: #fce8e8; color: #8b1a1a; }
+.row-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.row-label { font-weight: 500; margin-right: 4px; }
+
+/* ── Grower ── */
+.grow-log {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px;
+  padding: 1.25rem; margin-bottom: 12px; animation: slideUp 0.3s ease both;
+}
+.grow-log-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.grow-plant-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--bark); }
+.grow-stage-badge {
+  font-size: 10px; font-weight: 500; padding: 3px 10px; border-radius: 20px;
+  background: var(--green-light); color: var(--green); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.grow-meta { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.grow-guidance {
+  background: var(--green-light); border-radius: 10px; padding: 10px 12px;
+  font-size: 13px; color: var(--green); line-height: 1.6;
+}
+.grow-guidance.loading-state { color: var(--muted); font-style: italic; }
+.grow-actions { display: flex; gap: 8px; margin-top: 10px; }
+.grow-action-btn {
+  flex: 1; padding: 8px; background: transparent; border: 1px solid var(--border);
+  border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 12px;
+  color: var(--muted); cursor: pointer; transition: all 0.2s; text-align: center;
+}
+.grow-action-btn:hover { border-color: var(--green-accent); color: var(--green); }
+.grow-action-btn.danger:hover { border-color: #c0392b; color: #c0392b; }
+.empty-state {
+  text-align: center; padding: 2.5rem; color: var(--muted);
+  font-size: 14px; border: 2px dashed var(--border); border-radius: 18px;
+}
+.empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.empty-state p { font-style: italic; }
+
+/* ── Herbiary ── */
+.herb-answer {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px;
+  padding: 1.5rem; animation: slideUp 0.3s ease both;
+}
+.herb-answer-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--green); margin-bottom: 1rem; font-style: italic; }
+.herb-section { margin-bottom: 12px; }
+.herb-section-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--muted); font-weight: 500; margin-bottom: 5px;
+}
+.herb-section-body {
+  font-size: 13px; line-height: 1.7; color: var(--bark);
+  background: var(--input-bg); border-radius: 10px; padding: 10px 13px;
+  border: 1px solid var(--border);
+}
+.herb-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.herb-tag {
+  font-size: 11px; padding: 4px 11px; border-radius: 20px;
+  background: var(--green-light); color: var(--green); font-weight: 500;
+}
+.herb-warning {
+  background: #fce8e8; color: #8b1a1a; border-radius: 10px;
+  padding: 10px 13px; font-size: 13px; line-height: 1.6;
+}
+
+/* ── Print button ── */
+.print-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; background: transparent;
+  border: 1px solid var(--border); border-radius: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 12px;
+  color: var(--muted); cursor: pointer; transition: all 0.2s;
+  margin-bottom: 1rem;
+}
+.print-btn:hover { border-color: var(--green-accent); color: var(--green); }
+
+/* ── Search history ── */
+.history-section { margin-bottom: 1.5rem; }
+.history-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--muted); font-weight: 500; margin-bottom: 8px;
+}
+.history-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.history-chip {
+  font-size: 12px; padding: 6px 14px; border-radius: 20px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  color: var(--muted); cursor: pointer; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.history-chip:hover { border-color: var(--green-accent); color: var(--green); }
+
+@media print {
+  .gate, .topbar, .divider, .tagline, .mode-nav, .form-card,
+  .history-section, .weather-strip, .fetch-weather-btn,
+  .print-btn, footer, .key-badge, .theme-toggle { display: none !important; }
+  body { background: white !important; color: #000 !important; }
+  .plant-card, .herb-answer { break-inside: avoid; border: 1px solid #ccc !important; }
+  .results, .panel { display: block !important; }
+}
+footer {
+  text-align: center; margin-top: 3rem; font-size: 12px;
+  color: var(--muted); font-style: italic;
+}
+footer a { color: var(--muted); text-decoration: none; }
+footer a:hover { color: var(--green); }
+
+@media (max-width: 500px) {
+  .fields-row { grid-template-columns: 1fr; }
+  .mode-btn { padding: 10px 12px 12px; font-size: 12px; }
+}
+
+/* ── Gate screen ── */
+.gate {
+  position: fixed; inset: 0; z-index: 100;
+  background: var(--body-bg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+  transition: opacity 0.4s ease;
+}
+.gate.hidden { opacity: 0; pointer-events: none; }
+
+.gate-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 8px 40px var(--shadow);
+}
+
+.gate-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 1.75rem; }
+.gate-brand-name { font-family: 'Playfair Display', serif; font-size: 1.75rem; color: var(--green); }
+.gate-brand-name em { font-style: italic; color: var(--green-accent); }
+
+.gate-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; color: var(--bark); margin-bottom: 0.4rem;
+}
+.gate-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.75rem; line-height: 1.6; }
+
+.gate-steps {
+  font-size: 12px; color: var(--muted); margin-bottom: 1.5rem;
+  line-height: 2; list-style: none;
+}
+.gate-steps li::before { content: '→ '; color: var(--green-accent); font-weight: 500; }
+
+.gate-input-row { display: flex; gap: 8px; margin-bottom: 0.75rem; }
+.gate-input {
+  flex: 1; border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+  color: var(--bark); background: var(--input-bg); outline: none;
+  transition: border-color 0.2s;
+}
+.gate-input:focus { border-color: var(--green-accent); }
+
+.gate-btn {
+  width: 100%; padding: 14px; background: var(--green); color: white; border: none;
+  border-radius: 14px; font-family: 'Playfair Display', serif; font-size: 1rem;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px; margin-top: 0.25rem;
+}
+.gate-btn:hover { background: var(--green-mid); transform: translateY(-1px); }
+.gate-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.gate-error {
+  font-size: 12px; color: #8b1a1a; background: #fce8e8;
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 0.75rem; display: none;
+}
+.gate-error.show { display: block; }
+.gate-privacy { font-size: 11px; color: var(--muted); margin-top: 1rem; text-align: center; line-height: 1.5; }
+
+/* key-active badge in topbar */
+.key-badge {
+  font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px;
+  background: var(--green-light); color: var(--green); letter-spacing: 0.5px;
+  cursor: pointer; border: 1px solid transparent; transition: border-color 0.2s;
+}
+.key-badge:hover { border-color: var(--green-accent); }
+</style>
+</head>
+<body>
+
+<!-- ── Gate screen ── -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-brand">
+      <div class="leaf-icon">🌿</div>
+      <div class="gate-brand-name">Ayur<em>Veda</em></div>
+    </div>
+    <div class="gate-title">Connect your API Key</div>
+    <p class="gate-sub">Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--green-mid);">aistudio.google.com</a> — no credit card needed.</p>
+    <div class="gate-error" id="gateError">Invalid or missing key. Please check and try again.</div>
+    <div class="gate-input-row">
+      <input class="gate-input" type="password" id="gateKey" placeholder="AIza..." onkeydown="if(event.key==='Enter')unlockApp()" />
+    </div>
+    <button class="gate-btn" id="gateBtn" onclick="unlockApp()">Unlock AyurVeda 🌿</button>
+
+  </div>
+</div>
+
+<div class="container" id="appContainer">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="leaf-icon">🌿</div>
+      <div class="brand-name">Ayur<em>Veda</em></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span class="key-badge" onclick="resetKey()" title="Click to change API key">🔑 Key Active</span>
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️ Light</button>
+    </div>
+  </div>
+
+  <p class="tagline">AI-powered plant companion — tailored to your climate & location</p>
+  <div class="divider"></div>
+
+  <!-- Mode Nav -->
+  <div class="mode-nav">
+    <button class="mode-btn active" onclick="switchMode('planter', this)">🌱 Planter</button>
+    <button class="mode-btn" onclick="switchMode('grower', this)">🪴 Grower</button>
+    <button class="mode-btn" onclick="switchMode('herbiary', this)">📖 Herbiary</button>
+  </div>
+
+  <!-- ═══════════════════════════════ PLANTER ═══════════════════════════════ -->
+  <div class="panel active" id="panel-planter">
+    <p class="mode-label">// Mode 01 — <span>Planter</span></p>
+
+    <div class="history-section" id="historySection" style="display:none;">
+      <div class="history-label">Recent searches</div>
+      <div class="history-chips" id="historyChips"></div>
+    </div>
+
+    <div class="weather-strip" id="weatherStrip">
+      <div class="weather-icon" id="wIcon">🌤️</div>
+      <div class="weather-info">
+        <div class="weather-city" id="wCity">—</div>
+        <div class="weather-detail" id="wDetail">—</div>
+        <div class="weather-tags" id="wTags"></div>
+      </div>
+      <div class="weather-temp" id="wTemp">—</div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-title">Tell me about your space</div>
+
+      <div class="fields-row">
+        <div class="field">
+          <label>Country</label>
+          <select id="country" onchange="populateCities()">
+            <option value="">Select country</option>
+            <option>Malaysia</option><option>India</option><option>Indonesia</option>
+            <option>Singapore</option><option>Thailand</option><option>Philippines</option>
+            <option>United Kingdom</option><option>United States</option><option>Australia</option>
+            <option>Japan</option><option>China</option><option>Germany</option>
+            <option>France</option><option>Brazil</option><option>Nigeria</option>
+            <option>South Africa</option><option>UAE</option><option>Saudi Arabia</option>
+            <option>Pakistan</option><option>Bangladesh</option><option>Sri Lanka</option>
+            <option>Nepal</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>City</label>
+          <select id="citySelect" onchange="cityChanged()">
+            <option value="">Select country first</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field" id="customCityField" style="display:none;">
+        <label>Enter your city</label>
+        <input type="text" id="customCity" placeholder="Type your city name..." />
+      </div>
+
+      <button class="fetch-weather-btn" onclick="fetchWeather()">🌦️ Fetch live weather</button>
+
+      <div class="fields-row">
+        <div class="field">
+          <label>Growing space</label>
+          <select id="space">
+            <option value="">Select space</option>
+            <option value="balcony">Balcony</option>
+            <option value="windowsill">Windowsill</option>
+            <option value="garden / outdoor">Garden / Outdoor</option>
+            <option value="indoor room">Indoor room</option>
+            <option value="rooftop terrace">Rooftop terrace</option>
+            <option value="greenhouse">Greenhouse</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Sunlight available</label>
+          <select id="sunlight">
+            <option value="">Select sunlight</option>
+            <option value="full sun (6+ hours daily)">Full sun (6+ hrs)</option>
+            <option value="partial sun (3–6 hours daily)">Partial (3–6 hrs)</option>
+            <option value="low or indirect light">Low / indirect</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>What are you looking for?</label>
+        <select id="goal">
+          <option value="">Select your goal</option>
+          <option value="Ayurvedic and medicinal herbs">Ayurvedic / medicinal herbs</option>
+          <option value="culinary and cooking herbs">Cooking herbs</option>
+          <option value="air purifying plants">Air purifying plants</option>
+          <option value="calming and decorative plants">Calming / decorative</option>
+          <option value="fruit-bearing plants">Fruit-bearing plants</option>
+          <option value="beginner-friendly low-maintenance plants">Beginner friendly</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Your experience level</label>
+        <select id="experience">
+          <option value="">Select level</option>
+          <option value="complete beginner with no gardening experience">Complete beginner</option>
+          <option value="some experience with basic plants">Some experience</option>
+          <option value="intermediate gardener">Intermediate</option>
+          <option value="experienced gardener">Experienced</option>
+        </select>
+      </div>
+
+      <button class="find-btn" id="findBtn" onclick="findPlants()">Find my plants 🌱</button>
+      <div class="error-msg" id="planterError"></div>
+    </div>
+
+    <div class="loading" id="planterLoading">Consulting the ancient wisdom<span class="loading-dots"></span></div>
+
+    <div class="results" id="planterResults">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div class="results-title" id="resultsTitle" style="margin-bottom:0;">Here are your matches —</div>
+        <button class="print-btn" onclick="window.print()">🖨️ Print / PDF</button>
+      </div>
+      <div id="plantList"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ GROWER ═══════════════════════════════ -->
+  <div class="panel" id="panel-grower">
+    <p class="mode-label">// Mode 02 — <span>Grower</span></p>
+
+    <div class="form-card">
+      <div class="form-title">Log a new plant</div>
+      <div class="fields-row">
+        <div class="field">
+          <label>Plant name</label>
+          <input type="text" id="growPlantName" placeholder="e.g. Tulsi, Aloe Vera..." />
+        </div>
+        <div class="field">
+          <label>Growth stage</label>
+          <select id="growStage">
+            <option value="">Select stage</option>
+            <option value="seed / just planted">Seed / Just planted</option>
+            <option value="seedling (1–2 weeks)">Seedling (1–2 weeks)</option>
+            <option value="young plant (1 month)">Young plant (1 month)</option>
+            <option value="established (2–3 months)">Established (2–3 months)</option>
+            <option value="mature / flowering">Mature / Flowering</option>
+            <option value="fruiting / harvesting">Fruiting / Harvesting</option>
+            <option value="dormant / struggling">Dormant / Struggling</option>
+          </select>
+        </div>
+      </div>
+      <div class="fields-row">
+        <div class="field">
+          <label>Your location</label>
+          <input type="text" id="growLocation" placeholder="e.g. Kuala Lumpur, Malaysia" />
+        </div>
+        <div class="field">
+          <label>Growing in</label>
+          <select id="growSpace">
+            <option value="">Select space</option>
+            <option value="pot on balcony">Pot on balcony</option>
+            <option value="garden soil">Garden soil</option>
+            <option value="raised bed">Raised bed</option>
+            <option value="indoor pot">Indoor pot</option>
+            <option value="windowsill pot">Windowsill pot</option>
+            <option value="rooftop">Rooftop</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Any issues or observations? <span style="color:var(--muted);font-size:10px;">(optional)</span></label>
+        <textarea id="growNotes" placeholder="e.g. Leaves yellowing, not growing fast, noticed pests..."></textarea>
+      </div>
+      <button class="find-btn" id="growBtn" onclick="addPlant()">Add to my garden 🪴</button>
+      <div class="error-msg" id="growerError"></div>
+    </div>
+
+    <div id="growList"></div>
+  </div>
+
+  <!-- ═══════════════════════════════ HERBIARY ═══════════════════════════════ -->
+  <div class="panel" id="panel-herbiary">
+    <p class="mode-label">// Mode 03 — <span>Herbiary</span></p>
+
+    <div class="form-card">
+      <div class="form-title">Ask about any plant or herb</div>
+      <div class="field">
+        <label>Plant or herb name</label>
+        <input type="text" id="herbName" placeholder="e.g. Ashwagandha, Moringa, Pandan..." />
+      </div>
+      <div class="field">
+        <label>What do you want to know?</label>
+        <select id="herbQuery">
+          <option value="">Select topic</option>
+          <option value="complete overview (Ayurvedic uses, growing, dosage, warnings)">Complete overview</option>
+          <option value="Ayurvedic and medicinal uses">Ayurvedic / medicinal uses</option>
+          <option value="how to grow it — soil, sunlight, water, climate">How to grow it</option>
+          <option value="dosage and safe consumption guidelines">Dosage & safe use</option>
+          <option value="companion plants and what not to grow nearby">Companion planting</option>
+          <option value="harvesting and storing">Harvesting & storing</option>
+          <option value="common problems and how to fix them">Common problems & fixes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Your location <span style="color:var(--muted);font-size:10px;">(optional, for growing advice)</span></label>
+        <input type="text" id="herbLocation" placeholder="e.g. Kuala Lumpur, Malaysia" />
+      </div>
+      <button class="find-btn" id="herbBtn" onclick="askHerbiary()">Ask the Herbiary 📖</button>
+      <div class="error-msg" id="herbError"></div>
+    </div>
+
+    <div class="loading" id="herbLoading">Leafing through ancient texts<span class="loading-dots"></span></div>
+    <div id="herbAnswer" style="display:none;"></div>
+  </div>
+
+  <footer>
+    Aura · Veda · Pact · Ayur — Built in KL.
+  </footer>
+</div>
+
+<script>
+/* ── State ── */
+let geminiKey = '', weatherData = null;
+let plants = JSON.parse(localStorage.getItem('ayur_plants') || '[]');
+
+/* ── Gate ── */
+function unlockApp() {
+  const val = document.getElementById('gateKey').value.trim();
+  const err = document.getElementById('gateError');
+  const btn = document.getElementById('gateBtn');
+  if (!val) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Unlocking…';
+  // Quick validate by making a cheap test call
+  fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${val}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ parts: [{ text: 'hi' }] }] })
+  }).then(r => {
+    if (r.ok) {
+      geminiKey = val;
+      localStorage.setItem('ayur_key', val);
+      const gate = document.getElementById('gate');
+      gate.classList.add('hidden');
+      setTimeout(() => gate.style.display = 'none', 400);
+    } else {
+      err.textContent = 'Invalid or missing key. Please check and try again.';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Unlock AyurVeda 🌿';
+    }
+  }).catch(() => {
+    err.textContent = 'Network error. Check your connection and try again.';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Unlock AyurVeda 🌿';
+  });
+}
+
+function resetKey() {
+  if (!confirm('Change your API key?')) return;
+  localStorage.removeItem('ayur_key');
+  geminiKey = '';
+  document.getElementById('gateKey').value = '';
+  document.getElementById('gateError').style.display = 'none';
+  document.getElementById('gateBtn').disabled = false;
+  document.getElementById('gateBtn').textContent = 'Unlock AyurVeda 🌿';
+  const gate = document.getElementById('gate');
+  gate.style.display = 'flex';
+  setTimeout(() => gate.classList.remove('hidden'), 10);
+}
+
+// Auto-unlock if key already saved
+(function initGate() {
+  const saved = localStorage.getItem('ayur_key');
+  if (saved) {
+    geminiKey = saved;
+    document.getElementById('gate').style.display = 'none';
+  }
+})();
+
+/* ── Theme ── */
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = isDark ? '☀️ Light' : '🌙 Dark';
+  localStorage.setItem('ayur_theme', isDark ? 'light' : 'dark');
+}
+(function initTheme() {
+  const saved = localStorage.getItem('ayur_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeBtn').textContent = saved === 'dark' ? '🌙 Dark' : '☀️ Light';
+})();
+
+/* ── Mode switching ── */
+function switchMode(mode, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + mode).classList.add('active');
+  btn.classList.add('active');
+  if (mode === 'grower') renderGrowList();
+}
+
+/* ── Keys ── */
+/* ── City data ── */
+const cities = {
+  Malaysia: ['Kuala Lumpur','Penang','Johor Bahru','Kota Kinabalu','Kuching','Ipoh','Malacca','Other'],
+  India: ['Mumbai','Delhi','Bangalore','Chennai','Kolkata','Hyderabad','Pune','Ahmedabad','Jaipur','Other'],
+  Indonesia: ['Jakarta','Surabaya','Bandung','Bali','Medan','Other'],
+  Singapore: ['Singapore'],
+  Thailand: ['Bangkok','Chiang Mai','Phuket','Other'],
+  Philippines: ['Manila','Cebu','Davao','Other'],
+  'United Kingdom': ['London','Manchester','Birmingham','Edinburgh','Bristol','Other'],
+  'United States': ['New York','Los Angeles','Chicago','Houston','Miami','Seattle','Other'],
+  Australia: ['Sydney','Melbourne','Brisbane','Perth','Adelaide','Other'],
+  Japan: ['Tokyo','Osaka','Kyoto','Other'],
+  China: ['Beijing','Shanghai','Guangzhou','Other'],
+  Germany: ['Berlin','Munich','Hamburg','Other'],
+  France: ['Paris','Lyon','Marseille','Other'],
+  Brazil: ['São Paulo','Rio de Janeiro','Brasília','Other'],
+  Nigeria: ['Lagos','Abuja','Kano','Other'],
+  'South Africa': ['Johannesburg','Cape Town','Durban','Other'],
+  UAE: ['Dubai','Abu Dhabi','Sharjah','Other'],
+  'Saudi Arabia': ['Riyadh','Jeddah','Mecca','Other'],
+  Pakistan: ['Karachi','Lahore','Islamabad','Other'],
+  Bangladesh: ['Dhaka','Chittagong','Other'],
+  'Sri Lanka': ['Colombo','Kandy','Other'],
+  Nepal: ['Kathmandu','Pokhara','Other'],
+  Other: ['Other']
+};
+
+
+function populateCities() {
+  const country = document.getElementById('country').value;
+  const sel = document.getElementById('citySelect');
+  sel.innerHTML = '<option value="">Select city</option>';
+  (cities[country] || ['Other']).forEach(c => {
+    const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o);
+  });
+  document.getElementById('customCityField').style.display = 'none';
+  weatherData = null;
+  document.getElementById('weatherStrip').className = 'weather-strip';
+}
+
+function cityChanged() {
+  const v = document.getElementById('citySelect').value;
+  document.getElementById('customCityField').style.display = v === 'Other' ? 'block' : 'none';
+  weatherData = null;
+  document.getElementById('weatherStrip').className = 'weather-strip';
+}
+
+function getCity() {
+  const sel = document.getElementById('citySelect').value;
+  return sel === 'Other' ? document.getElementById('customCity').value.trim() : sel;
+}
+
+/* ── Weather (Open-Meteo — no key needed) ── */
+const wmoIcon = code => {
+  if (code === 0) return '☀️';
+  if (code <= 2) return '🌤️';
+  if (code === 3) return '☁️';
+  if (code <= 49) return '🌫️';
+  if (code <= 67) return '🌧️';
+  if (code <= 77) return '❄️';
+  if (code <= 82) return '🌦️';
+  if (code <= 99) return '⛈️';
+  return '🌡️';
+};
+const wmoDesc = code => {
+  if (code === 0) return 'Clear sky';
+  if (code <= 2) return 'Partly cloudy';
+  if (code === 3) return 'Overcast';
+  if (code <= 49) return 'Foggy / hazy';
+  if (code <= 67) return 'Rainy';
+  if (code <= 77) return 'Snowy';
+  if (code <= 82) return 'Rain showers';
+  if (code <= 99) return 'Thunderstorm';
+  return 'Unknown';
+};
+
+async function fetchWeather() {
+  const city = getCity();
+  const country = document.getElementById('country').value;
+  const err = document.getElementById('planterError');
+  err.className = 'error-msg';
+  if (!city) { err.textContent = 'Please select a city first.'; err.className = 'error-msg show'; return; }
+
+    document.querySelector('.fetch-weather-btn').textContent = '⏳ Fetching…';
+
+  try {
+    // Step 1 — geocode city name → lat/lng via Open-Meteo geocoding
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=5&language=en&format=json`);
+    const geoData = await geoRes.json();
+    if (!geoData.results || !geoData.results.length) throw new Error(`City "${city}" not found`);
+
+    // Pick best match: prefer one that matches country if possible
+    const countryCode = countryISO[country] || '';
+    const match = geoData.results.find(r => r.country_code === countryCode) || geoData.results[0];
+    const { latitude, longitude, name: geoName, country: geoCountry } = match;
+
+    // Step 2 — fetch weather via Open-Meteo
+    const wxRes = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
+      `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weather_code` +
+      `&wind_speed_unit=ms&timezone=auto`
+    );
+    const wx = await wxRes.json();
+    const c = wx.current;
+
+    weatherData = {
+      temp: Math.round(c.temperature_2m),
+      feels: Math.round(c.apparent_temperature),
+      humidity: c.relative_humidity_2m,
+      wind: Math.round(c.wind_speed_10m),
+      rain: c.precipitation || 0,
+      code: c.weather_code,
+      description: wmoDesc(c.weather_code),
+      city: geoName,
+      country: geoCountry
+    };
+
+    document.getElementById('wIcon').textContent = wmoIcon(weatherData.code);
+    document.getElementById('wCity').textContent = `${weatherData.city}, ${weatherData.country}`;
+    document.getElementById('wDetail').textContent = `Feels like ${weatherData.feels}°C · ${weatherData.humidity}% humidity · Wind ${weatherData.wind} m/s`;
+    document.getElementById('wTemp').textContent = `${weatherData.temp}°C`;
+
+    const tags = [];
+    if (weatherData.humidity > 80) tags.push('High humidity');
+    if (weatherData.humidity < 40) tags.push('Low humidity');
+    if (weatherData.temp > 32) tags.push('Very hot');
+    if (weatherData.temp < 15) tags.push('Cool climate');
+    if (weatherData.rain > 0) tags.push('Currently raining');
+    if (weatherData.code === 0) tags.push('Clear skies');
+    if (!tags.length) tags.push('Moderate conditions');
+    document.getElementById('wTags').innerHTML = tags.map(t => `<span class="weather-tag">${t}</span>`).join('');
+    document.getElementById('weatherStrip').className = 'weather-strip show';
+
+  } catch(e) {
+    err.textContent = 'Weather error: ' + e.message;
+    err.className = 'error-msg show';
+  } finally {
+    document.querySelector('.fetch-weather-btn').textContent = '🌦️ Fetch live weather';
+  }
+}
+
+// ISO country codes for geo matching
+const countryISO = {
+  'Malaysia':'MY','India':'IN','Indonesia':'ID','Singapore':'SG','Thailand':'TH',
+  'Philippines':'PH','United Kingdom':'GB','United States':'US','Australia':'AU',
+  'Japan':'JP','China':'CN','Germany':'DE','France':'FR','Brazil':'BR',
+  'Nigeria':'NG','South Africa':'ZA','UAE':'AE','Saudi Arabia':'SA',
+  'Pakistan':'PK','Bangladesh':'BD','Sri Lanka':'LK','Nepal':'NP'
+};
+
+/* ── Gemini call ── */
+async function callGemini(prompt) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }
+  );
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || 'Gemini API error');
+  let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return raw.replace(/```json|```/g, '').trim();
+}
+
+function diffClass(d) {
+  if (!d) return 'diff-easy';
+  const l = d.toLowerCase();
+  if (l.includes('hard')) return 'diff-hard';
+  if (l.includes('med')) return 'diff-medium';
+  return 'diff-easy';
+}
+
+/* ══════════════════════════════════════════════════
+   PLANTER
+══════════════════════════════════════════════════ */
+async function findPlants() {
+  const country = document.getElementById('country').value;
+  const city = getCity();
+  const space = document.getElementById('space').value;
+  const sunlight = document.getElementById('sunlight').value;
+  const goal = document.getElementById('goal').value;
+  const experience = document.getElementById('experience').value;
+  const err = document.getElementById('planterError');
+  err.className = 'error-msg';
+
+  if (!geminiKey) { err.textContent = 'Please save your Gemini API key first.'; err.className = 'error-msg show'; return; }
+  if (!country || !city) { err.textContent = 'Please select your country and city.'; err.className = 'error-msg show'; return; }
+  if (!space || !sunlight || !goal || !experience) { err.textContent = 'Please fill in all fields.'; err.className = 'error-msg show'; return; }
+
+  document.getElementById('findBtn').disabled = true;
+  document.getElementById('planterLoading').className = 'loading show';
+  document.getElementById('planterResults').className = 'results';
+
+  const season = getCurrentSeason(country);
+  const weatherCtx = weatherData
+    ? `Current live weather in ${weatherData.city}: ${weatherData.temp}°C, feels like ${weatherData.feels}°C, humidity ${weatherData.humidity}%, condition: ${weatherData.description}, wind: ${weatherData.wind} m/s, recent rainfall: ${weatherData.rain}mm.`
+    : `No live weather data — use your knowledge of the typical climate for ${city}, ${country}.`;
+
+  const prompt = `You are AyurVeda, an expert Ayurvedic botanist and horticulturalist.
+
+USER PROFILE:
+- Location: ${city}, ${country}
+- Current season: ${season}
+- Growing space: ${space}
+- Sunlight: ${sunlight}
+- Goal: ${goal}
+- Experience level: ${experience}
+- ${weatherCtx}
+
+TASK: Recommend exactly 3 plants that are REALISTICALLY growable in ${city}, ${country} RIGHT NOW in ${season}. Be honest about what works — for example pomegranates struggle in high-humidity tropical climates. Tailor advice to their exact space, current weather, and climate zone.
+
+Return ONLY a valid JSON array, no markdown, no extra text:
+[
+  {
+    "name": "Common name",
+    "scientific": "Scientific name",
+    "difficulty": "Easy or Medium or Hard",
+    "ayurvedic_benefit": "Specific Ayurvedic or health benefit, one sentence",
+    "why_it_works": "Why this plant suits their exact location and climate, one sentence",
+    "care_tip": "Most important care tip for their specific space type",
+    "when_to_water": "Specific watering advice referencing current weather and humidity if available",
+    "best_time_to_plant": "Best month or season to plant in ${city}, ${country} and why",
+    "climate_warning": "Any climate challenge specific to ${city}, ${country} to watch out for, or empty string"
+  }
+]`;
+
+  try {
+    const raw = await callGemini(prompt);
+    const plants = JSON.parse(raw);
+    document.getElementById('resultsTitle').textContent = `Best plants for ${city}, ${country} —`;
+    document.getElementById('plantList').innerHTML = plants.map(p => `
+      <div class="plant-card">
+        <div class="plant-header">
+          <div>
+            <div class="plant-name">${p.name}</div>
+            <div class="plant-sci">${p.scientific}</div>
+          </div>
+          <div class="difficulty ${diffClass(p.difficulty)}">${p.difficulty}</div>
+        </div>
+        <div class="plant-sections">
+          <div class="plant-row benefit"><span class="row-icon">✦</span><div><span class="row-label">Benefit:</span>${p.ayurvedic_benefit}</div></div>
+          <div class="plant-row why"><span class="row-icon">📍</span><div><span class="row-label">Why it works here:</span>${p.why_it_works}</div></div>
+          <div class="plant-row care"><span class="row-icon">🌿</span><div><span class="row-label">Care tip:</span>${p.care_tip}</div></div>
+          <div class="plant-row water"><span class="row-icon">💧</span><div><span class="row-label">When to water:</span>${p.when_to_water}</div></div>
+          <div class="plant-row plant-time"><span class="row-icon">📅</span><div><span class="row-label">Best time to plant:</span>${p.best_time_to_plant}</div></div>
+          ${p.climate_warning ? `<div class="plant-row warning"><span class="row-icon">⚠️</span><div><span class="row-label">Watch out:</span>${p.climate_warning}</div></div>` : ''}
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('planterResults').className = 'results show';
+  } catch(e) {
+    err.textContent = 'Error: ' + (e.message || 'Something went wrong. Check your API key.');
+    err.className = 'error-msg show';
+  } finally {
+    document.getElementById('planterLoading').className = 'loading';
+    document.getElementById('findBtn').disabled = false;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   GROWER
+══════════════════════════════════════════════════ */
+async function addPlant() {
+  const name = document.getElementById('growPlantName').value.trim();
+  const stage = document.getElementById('growStage').value;
+  const location = document.getElementById('growLocation').value.trim();
+  const space = document.getElementById('growSpace').value;
+  const notes = document.getElementById('growNotes').value.trim();
+  const err = document.getElementById('growerError');
+  err.className = 'error-msg';
+
+  if (!geminiKey) { err.textContent = 'Please save your Gemini API key first.'; err.className = 'error-msg show'; return; }
+  if (!name || !stage || !location || !space) { err.textContent = 'Please fill in all required fields.'; err.className = 'error-msg show'; return; }
+
+  const id = Date.now();
+  const entry = { id, name, stage, location, space, notes, guidance: null, added: new Date().toLocaleDateString('en-MY', {day:'numeric',month:'short',year:'numeric'}) };
+  plants.push(entry);
+  savePlants();
+  renderGrowList();
+
+  // Clear form
+  document.getElementById('growPlantName').value = '';
+  document.getElementById('growStage').value = '';
+  document.getElementById('growLocation').value = '';
+  document.getElementById('growSpace').value = '';
+  document.getElementById('growNotes').value = '';
+  document.getElementById('growBtn').disabled = false;
+
+  // Fetch guidance async
+  await fetchGuidance(id);
+}
+
+async function fetchGuidance(id) {
+  const entry = plants.find(p => p.id === id);
+  if (!entry) return;
+
+  const el = document.getElementById(`guidance-${id}`);
+  if (el) { el.textContent = 'Consulting Gemini...'; el.className = 'grow-guidance loading-state'; }
+
+  const prompt = `You are AyurVeda, an expert Ayurvedic botanist.
+
+PLANT LOG:
+- Plant: ${entry.name}
+- Current stage: ${entry.stage}
+- Location: ${entry.location}
+- Growing in: ${entry.space}
+- User notes: ${entry.notes || 'None'}
+
+Give concise, actionable growing guidance for this EXACT stage. Include:
+1. What to do RIGHT NOW at this stage
+2. What to watch for in the next 2 weeks
+3. One Ayurvedic or wellness insight about this plant
+
+Return ONLY a valid JSON object:
+{
+  "now": "What to do right now, 1-2 sentences",
+  "next": "What to watch for in 2 weeks, 1-2 sentences",
+  "insight": "One Ayurvedic or wellness insight, 1 sentence",
+  "warning": "Any urgent issue based on user notes, or empty string"
+}`;
+
+  try {
+    const raw = await callGemini(prompt);
+    const g = JSON.parse(raw);
+    entry.guidance = g;
+    savePlants();
+    if (el) {
+      el.className = 'grow-guidance';
+      el.innerHTML = `<div style="margin-bottom:6px;"><span class="row-label">Now:</span> ${g.now}</div>
+        <div style="margin-bottom:6px;"><span class="row-label">Next 2 weeks:</span> ${g.next}</div>
+        <div style="margin-bottom:${g.warning ? '6px' : '0'};"><span class="row-label">✦ Insight:</span> ${g.insight}</div>
+        ${g.warning ? `<div style="margin-top:6px;padding:7px 10px;background:#fce8e8;color:#8b1a1a;border-radius:8px;font-size:12px;">⚠️ ${g.warning}</div>` : ''}`;
+    }
+  } catch(e) {
+    if (el) { el.textContent = 'Could not load guidance. Check your API key.'; el.className = 'grow-guidance loading-state'; }
+  }
+}
+
+async function refreshGuidance(id) {
+  const entry = plants.find(p => p.id === id);
+  if (!entry) return;
+  entry.guidance = null;
+  savePlants();
+  await fetchGuidance(id);
+}
+
+function removePlant(id) {
+  plants = plants.filter(p => p.id !== id);
+  savePlants();
+  renderGrowList();
+}
+
+function savePlants() {
+  localStorage.setItem('ayur_plants', JSON.stringify(plants));
+}
+
+function renderGrowList() {
+  const el = document.getElementById('growList');
+  if (!plants.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🪴</div><p>Your garden is empty.<br>Log your first plant above to get growing guidance.</p></div>`;
+    return;
+  }
+  el.innerHTML = plants.map(p => `
+    <div class="grow-log" id="log-${p.id}">
+      <div class="grow-log-header">
+        <div>
+          <div class="grow-plant-name">${p.name}</div>
+          <div class="grow-meta">In ${p.space} · ${p.location} · Added ${p.added}</div>
+        </div>
+        <div class="grow-stage-badge">${p.stage}</div>
+      </div>
+      <div class="grow-guidance ${p.guidance ? '' : 'loading-state'}" id="guidance-${p.id}">
+        ${p.guidance ? `
+          <div style="margin-bottom:6px;"><span class="row-label">Now:</span> ${p.guidance.now}</div>
+          <div style="margin-bottom:6px;"><span class="row-label">Next 2 weeks:</span> ${p.guidance.next}</div>
+          <div style="margin-bottom:${p.guidance.warning ? '6px' : '0'};"><span class="row-label">✦ Insight:</span> ${p.guidance.insight}</div>
+          ${p.guidance.warning ? `<div style="margin-top:6px;padding:7px 10px;background:#fce8e8;color:#8b1a1a;border-radius:8px;font-size:12px;">⚠️ ${p.guidance.warning}</div>` : ''}
+        ` : 'Loading guidance...'}
+      </div>
+      <div class="grow-actions">
+        <button class="grow-action-btn" onclick="refreshGuidance(${p.id})">↻ Refresh guidance</button>
+        <button class="grow-action-btn danger" onclick="removePlant(${p.id})">✕ Remove</button>
+      </div>
+    </div>
+  `).join('');
+
+  // Fetch guidance for any that don't have it yet
+  plants.forEach(p => { if (!p.guidance) fetchGuidance(p.id); });
+}
+
+/* ══════════════════════════════════════════════════
+   HERBIARY
+══════════════════════════════════════════════════ */
+async function askHerbiary() {
+  const herb = document.getElementById('herbName').value.trim();
+  const query = document.getElementById('herbQuery').value;
+  const location = document.getElementById('herbLocation').value.trim();
+  const err = document.getElementById('herbError');
+  err.className = 'error-msg';
+
+  if (!geminiKey) { err.textContent = 'Please save your Gemini API key first.'; err.className = 'error-msg show'; return; }
+  if (!herb) { err.textContent = 'Please enter a plant or herb name.'; err.className = 'error-msg show'; return; }
+  if (!query) { err.textContent = 'Please select what you want to know.'; err.className = 'error-msg show'; return; }
+
+  document.getElementById('herbBtn').disabled = true;
+  document.getElementById('herbLoading').className = 'loading show';
+  document.getElementById('herbAnswer').style.display = 'none';
+
+  const locationCtx = location ? `The user is in ${location} — tailor growing advice to their climate.` : '';
+
+  const prompt = `You are AyurVeda, an expert Ayurvedic botanist with deep knowledge of herbs and plants.
+
+QUERY:
+- Plant / herb: ${herb}
+- Topic: ${query}
+- ${locationCtx}
+
+Return ONLY a valid JSON object with these fields (use empty string if not applicable):
+{
+  "common_name": "Most widely known name",
+  "scientific_name": "Latin scientific name",
+  "sanskrit_name": "Sanskrit / Ayurvedic name if applicable, or empty string",
+  "overview": "2-3 sentence overview of this plant",
+  "ayurvedic_uses": "Key Ayurvedic and traditional medicinal uses, 2-3 sentences",
+  "growing_guide": "How to grow — soil, sunlight, water, climate needs, 2-3 sentences",
+  "dosage": "Safe consumption guidelines and dosage if applicable, or empty string",
+  "companions": "Good companion plants and plants to avoid nearby, or empty string",
+  "harvest": "When and how to harvest and store, or empty string",
+  "problems": "Common problems and how to fix them, or empty string",
+  "tags": ["tag1", "tag2", "tag3"],
+  "warning": "Any safety warnings, contraindications, or overdose risks — or empty string"
+}`;
+
+  try {
+    const raw = await callGemini(prompt);
+    const h = JSON.parse(raw);
+
+    const sections = [];
+    if (h.overview) sections.push({ label: 'Overview', body: h.overview, type: 'text' });
+    if (h.ayurvedic_uses) sections.push({ label: 'Ayurvedic Uses', body: h.ayurvedic_uses, type: 'text' });
+    if (h.growing_guide) sections.push({ label: 'Growing Guide', body: h.growing_guide, type: 'text' });
+    if (h.dosage) sections.push({ label: 'Dosage & Safe Use', body: h.dosage, type: 'text' });
+    if (h.companions) sections.push({ label: 'Companion Planting', body: h.companions, type: 'text' });
+    if (h.harvest) sections.push({ label: 'Harvesting & Storing', body: h.harvest, type: 'text' });
+    if (h.problems) sections.push({ label: 'Common Problems', body: h.problems, type: 'text' });
+
+    document.getElementById('herbAnswer').innerHTML = `
+      <div class="herb-answer">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--bark);">${h.common_name || herb}</div>
+            <div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:2px;">${h.scientific_name || ''}${h.sanskrit_name ? ' · ' + h.sanskrit_name : ''}</div>
+          </div>
+          <button class="print-btn" onclick="window.print()">🖨️ Print / PDF</button>
+        </div>
+        ${h.tags && h.tags.length ? `<div class="herb-tags" style="margin-bottom:1rem;">${h.tags.map(t => `<span class="herb-tag">${t}</span>`).join('')}</div>` : ''}
+        ${sections.map(s => `
+          <div class="herb-section">
+            <div class="herb-section-label">${s.label}</div>
+            <div class="herb-section-body">${s.body}</div>
+          </div>
+        `).join('')}
+        ${h.warning ? `
+          <div class="herb-section">
+            <div class="herb-section-label">⚠️ Safety Warning</div>
+            <div class="herb-warning">${h.warning}</div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    document.getElementById('herbAnswer').style.display = 'block';
+  } catch(e) {
+    err.textContent = 'Error: ' + (e.message || 'Something went wrong. Check your API key.');
+    err.className = 'error-msg show';
+  } finally {
+    document.getElementById('herbLoading').className = 'loading';
+    document.getElementById('herbBtn').disabled = false;
+  }
+}
+
+/* ── Season awareness ── */
+function getCurrentSeason(country) {
+  const month = new Date().getMonth(); // 0-11
+  const monthName = new Date().toLocaleString('en', { month: 'long' });
+  // Southern hemisphere flip
+  const southern = ['Australia','Brazil','South Africa','New Zealand','Argentina','Chile'];
+  const isSouth = southern.includes(country);
+  let season;
+  if ([11,0,1].includes(month)) season = isSouth ? 'Summer' : 'Winter';
+  else if ([2,3,4].includes(month)) season = isSouth ? 'Autumn' : 'Spring';
+  else if ([5,6,7].includes(month)) season = isSouth ? 'Winter' : 'Summer';
+  else season = isSouth ? 'Spring' : 'Autumn';
+  // Tropical override
+  const tropical = ['Malaysia','Singapore','Indonesia','Philippines','Thailand','Bangladesh','Sri Lanka','Nigeria'];
+  if (tropical.includes(country)) {
+    season = [10,11,0,1,2].includes(month) ? 'Northeast Monsoon / Dry season' : 'Southwest Monsoon / Wet season';
+  }
+  return `${season} (currently ${monthName})`;
+}
+
+/* ── Search history ── */
+let searchHistory = JSON.parse(localStorage.getItem('ayur_history') || '[]');
+
+function saveToHistory(city, country, goal) {
+  const entry = { city, country, goal, label: `${city} · ${goal.split(' ')[0]}`, ts: Date.now() };
+  searchHistory = [entry, ...searchHistory.filter(h => h.label !== entry.label)].slice(0, 3);
+  localStorage.setItem('ayur_history', JSON.stringify(searchHistory));
+  renderHistory();
+}
+
+function renderHistory() {
+  const section = document.getElementById('historySection');
+  const chips = document.getElementById('historyChips');
+  if (!searchHistory.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  chips.innerHTML = searchHistory.map((h, i) => `
+    <span class="history-chip" onclick="replaySearch(${i})">🕐 ${h.label}</span>
+  `).join('');
+}
+
+function replaySearch(i) {
+  const h = searchHistory[i];
+  // Pre-fill country + city if possible
+  const countryEl = document.getElementById('country');
+  countryEl.value = h.country;
+  populateCities();
+  setTimeout(() => {
+    const cityEl = document.getElementById('citySelect');
+    const opts = Array.from(cityEl.options).map(o => o.value);
+    if (opts.includes(h.city)) cityEl.value = h.city;
+    else { cityEl.value = 'Other'; document.getElementById('customCity').value = h.city; document.getElementById('customCityField').style.display = 'block'; }
+  }, 50);
+  // Scroll to form
+  document.querySelector('#panel-planter .form-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ── Init ── */
+renderGrowList();
+renderHistory();
+</script>
+</body>
+</html>
